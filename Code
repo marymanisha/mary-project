@@ -1,0 +1,42 @@
+ import pandas as pd
+ import numpy as np
+ import matplotlib.pyplot as plt
+ import seaborn as sns
+ from scipy import stats 
+ retail = pd.read_csv('Retail_Data_Transactions.csv'
+ retail.isnull()
+ retail['trans_date'] = pd.to_datetime(retail['trans_date'])
+ response = pd.read_csv('Retail_Data_Response.csv')
+ df = pd.merge(retail, response, on = 'customer_id', how = 'left')
+ df.dtypes
+ df.describe()
+ df.index
+ filtered = df[df['tran_amount'] >=100]
+  sns.boxplot(df)
+  df['tran_amount'].mean()
+  zscore = (df['tran_amount']-df['tran_amount'].mean())/df['tran_amount'].std()
+ threshold = 3
+ outliers = df[abs(zscore)>threshold]
+ if outliers.empty:
+    print('No outliers')
+ else:
+    print('Outliers')
+  sns.boxplot(df.tran_amount)
+  customer_counts = df['customer_id'].value_counts().reset_index()
+  top_5_customer = customer_counts.sort_values( by = 'count', ascending = False).head(5)
+  sns.barplot(x = 'customer_id', y = 'count', data = top_5_customer)
+ customer_sales = df.groupby('customer_id')['tran_amount'].sum().reset_index()
+ top_5_sales = customer_sales.sort_values(by = 'tran_amount', ascending = False).head(5)
+  sns.barplot(x = 'customer_id', y = 'tran_amount' , data = top_5_sales)
+  df['month_year'] = df['trans_date'].dt.to_period('M')
+  monthly_yearly_10_sales = df.groupby('month_year')['tran_amount'].sum().sort_values(ascending = False).reset_index().head(10)
+  df['month'] = df['trans_date'].dt.month
+  monthly_5_sales = df.groupby('month')['tran_amount'].sum().sort_values(ascending = False).head(5).reset_index()
+   sns.regplot( x = 'month', y = 'tran_amount', data = monthly_5_sales)
+   sns.pairplot(monthly_5_sales)
+   sns.kdeplot(monthly_yearly_10_sales)
+  sns.distplot(monthly_5_sales)
+ plt.show()
+ churn_analysis = df['response'].value_counts()
+ churn_analysis.plot(kind = 'line')
+ 
